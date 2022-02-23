@@ -11,7 +11,7 @@ pool:
 
 variables:
   BuildConfiguration: 'Release'
-  SolutionPath: 'YOUR_SOLUTION_FOLDER/YOUR_SOLUTION.sln'
+  SolutionPath: 'src/NetLearnerApp.sln.sln'
 
 steps:
 # Optional: 'dotnet restore' is not necessary because the 'dotnet build' command executes restore as well.
@@ -35,21 +35,31 @@ steps:
     projects: $(SolutionPath)
     arguments: '--configuration $(BuildConfiguration) --output $(Build.ArtifactStagingDirectory)'
     zipAfterPublish: True
-
-- task: AzureWebApp@1
-  displayName: 'Deploy Azure Web App'
+- task: DotNetCoreCLI@2
+  displayName: 'Publish and zip' 
   inputs:
-    azureSubscription: '<REPLACE_WITH_AZURE_SUBSCRIPTION_INFO>'
-    appName: <REPLACE_WITH_EXISTING_APP_SERVICE_NAME>
-    appType: 'webApp'
-    package: $(Build.ArtifactStagingDirectory)/**/*.zip
+    command: 'publish'
+    publishDirectory: '$(Build.ArtifactStagingDirectory)'
+    feedsToUsePublish: 'internal'
+    vstsFeedPublish: '4bb2a789-9282-4127-b5dd-3ee8bf0a1524/b7d9ab25-eeed-438d-9a25-9130771fd052'
+    vstsFeedPackagePublish: '$(Build.ArtifactStagingDirectory)/**/*.zip'
+    versionOption: 'patch'
+    
+    
+# - task: AzureWebApp@1
+#   displayName: 'Deploy Azure Web App'
+#   inputs:
+#     azureSubscription: '<REPLACE_WITH_AZURE_SUBSCRIPTION_INFO>'
+#     appName: <REPLACE_WITH_EXISTING_APP_SERVICE_NAME>
+#     appType: 'webApp'
+#     package: $(Build.ArtifactStagingDirectory)/**/*.zip
 
-# Optional step if you want to deploy to some other system using a Release pipeline or inspect the package afterwards
-- task: PublishBuildArtifacts@1
-  displayName: 'Publish Build artifacts'
-  inputs:
-    PathtoPublish: '$(Build.ArtifactStagingDirectory)'
-    ArtifactName: 'drop'
-    publishLocation: 'Container'
+# # Optional step if you want to deploy to some other system using a Release pipeline or inspect the package afterwards
+# - task: PublishBuildArtifacts@1
+#   displayName: 'Publish Build artifacts'
+#   inputs:
+#     PathtoPublish: '$(Build.ArtifactStagingDirectory)'
+#     ArtifactName: 'drop'
+#     publishLocation: 'Container'
 
 
